@@ -5,8 +5,11 @@ import (
 	"fmt"
 	"os"
 
+	clientset "github.com/hrishin/podset-operator/pkg/client/clientset/versioned"
+	sampleScheme "github.com/hrishin/podset-operator/pkg/client/clientset/versioned/scheme"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
+	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
+	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 )
@@ -35,15 +38,19 @@ func main() {
 		os.Exit(1)
 	}
 
-	client := kubernetes.NewForConfigOrDie(config)
+	client := clientset.NewForConfigOrDie(config)
 
-	list, err := client.CoreV1().Nodes().List(metav1.ListOptions{})
+	// To check if PodSet resource exist
+	utilruntime.Must(sampleScheme.AddToScheme(scheme.Scheme))
+
+	watcher, err := client.DemoV1alpha1().PodSets("pods").Watch(metav1.ListOptions{})
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "error listing nodes: %v", err)
+		fmt.Fprintf(os.Stderr, "error listing podsets: %v", err)
 		os.Exit(1)
 	}
 
-	for _, node := range list.Items {
-		fmt.Printf("Node: %s\n", node.Name)
+	ch := watcher.ResultChan()
+	for event := range ch {
+		fmt.Printf("Event : %s, \n %v \n\n", event.Type, event.Object)
 	}
 }
