@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/hrishin/podset-operator/pkg/apis/demo/v1alpha1"
 	clientset "github.com/hrishin/podset-operator/pkg/client/clientset/versioned"
 	sampleScheme "github.com/hrishin/podset-operator/pkg/client/clientset/versioned/scheme"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -43,7 +44,10 @@ func main() {
 	// To check if PodSet resource exist
 	utilruntime.Must(sampleScheme.AddToScheme(scheme.Scheme))
 
-	watcher, err := client.DemoV1alpha1().PodSets("pods").Watch(metav1.ListOptions{})
+	watcher, err := client.DemoV1alpha1().
+		PodSets("pods").
+		Watch(metav1.ListOptions{})
+
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error listing podsets: %v", err)
 		os.Exit(1)
@@ -51,6 +55,10 @@ func main() {
 
 	ch := watcher.ResultChan()
 	for event := range ch {
-		fmt.Printf("Event : %s, \n %v \n\n", event.Type, event.Object)
+		ps, ok := event.Object.(*v1alpha1.PodSet)
+		if !ok {
+			fmt.Printf("Event error : %s, \n", err)
+		}
+		fmt.Printf("Event type: %s,  name:%v \n", event.Type, ps.Name)
 	}
 }

@@ -21,3 +21,42 @@ metadata:
 spec:
   replicas: 3
 ```
+
+
+### Step 2:
+* create `pods` namespace
+```
+$ kubectl create namespace pods
+```
+
+* Create CRD to define PodSet as custom resource
+```
+$ kubectl apply -f resources/crd.yaml -n pods 
+```
+
+* In order create clientsets(API'S) for PodSet using go client, use [k8s.io/code-generator](https://github.com/kubernetes/code-generator)
+```
+$ go get k8s.io/code-generator
+
+
+$ ~/go/src/k8s.io/code-generator/generate-groups.sh "deepcopy,client" \
+github.com/hrishin/podset-operator/pkg/client \
+github.com/hrishin/podset-operator/pkg/apis \
+demo:v1alpha1
+```
+
+
+* Build an application
+```
+ $ go build -o podset .
+```
+
+* Run the application
+```
+$ ./podset kubeconfig=~/.kube/config
+```
+
+* Create PodSet resource
+```
+$ kubectl apply -f resources/cr.yaml -n pods 
+```
