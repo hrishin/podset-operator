@@ -60,3 +60,40 @@ $ ./podset kubeconfig=~/.kube/config
 ```
 $ kubectl apply -f resources/cr.yaml -n pods 
 ```
+
+### Step 3:
+Assume you have executed the step 2
+
+* In order create clientsets(API'S) for PodSet using go client, use [k8s.io/code-generator](https://github.com/kubernetes/code-generator)
+```
+$ go get k8s.io/code-generator
+
+
+$ ~/go/src/k8s.io/code-generator/generate-groups.sh "deepcopy,client" \
+github.com/hrishin/podset-operator/pkg/client \
+github.com/hrishin/podset-operator/pkg/apis \
+demo:v1alpha1
+```
+
+
+* Build an application
+```
+ $ go build -o podset .
+```
+
+* Run the application
+```
+$ ./podset kubeconfig=~/.kube/config
+```
+
+* Create PodSet resource
+```
+$ kubectl apply -f resources/cr.yaml -n pods 
+```
+
+* Watch the pods status
+```
+$ k get pods -n pods -w
+```
+
+you would see the pods are coming up one by one

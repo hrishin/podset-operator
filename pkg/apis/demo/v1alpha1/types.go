@@ -18,7 +18,7 @@ type PodSet struct {
 
 // PodSetSpec is the spec for a PodSet resource
 type PodSetSpec struct {
-	Replicas *int32 `json:"replicas"`
+	Replicas int32 `json:"replicas"`
 }
 
 // PodSetStatus is the status for a PodSet resource
