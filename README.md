@@ -97,3 +97,43 @@ $ k get pods -n pods -w
 ```
 
 you would see the pods are coming up one by one
+
+### Step 4:
+Assume you have executed the step 3.
+Step 4 leverages on few more generators like informers and listers
+
+* In order to generate clientsets(API'S), deep copy, informers, listers for PodSet using go client, use [k8s.io/code-generator](https://github.com/kubernetes/code-generator)
+```
+$ go get k8s.io/code-generator
+
+
+$ ~/go/src/k8s.io/code-generator/generate-groups.sh \
+"deepcopy,client,informer,lister" \
+github.com/hrishin/podset-operator/pkg/client \
+github.com/hrishin/podset-operator/pkg/apis \
+demo:v1alpha1
+```
+
+
+* Build an application
+```
+ $ go build -o podset .
+```
+
+* Run the application
+```
+$ ./podset kubeconfig=~/.kube/config
+```
+
+* Create PodSet resource
+```
+$ kubectl apply -f resources/cr.yaml -n pods 
+```
+
+* Watch the pods status
+```
+$ k get pods -n pods -w
+```
+
+you would see the pods are coming up one by one
+
