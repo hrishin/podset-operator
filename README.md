@@ -1,8 +1,8 @@
-## PodSet Operator 
+## PodSet Operator
 
 Objective of this Operator/Controller is demonstrate `ReplicaSet` kind of resource
 implementation using Kubernetes controller pattern.
-Another objective of this repo. is to show how to build the controller from scratch and what challenges/gotchas developer could face. 
+Another objective of this repo. is to show how to build the controller from scratch and what challenges/gotchas developer could face.
 So a developer could understand the beauty [KuberBuilder](https://github.com/kubernetes-sigs/kubebuilder) or [Operator SDK](https://github.com/operator-framework/operator-sdk) frameworks
 
 
@@ -35,7 +35,7 @@ Check out the code according to following instruction and check the README file 
 ```
 git checkout step-1
 ```
-covers basic code and scaffolding setup 
+covers basic code and scaffolding setup
 
 #### step 2
 ```
@@ -54,11 +54,12 @@ Covers functional controller using basic generated code. It shows how to issue w
 ```
 git checkout step-4
 ```
-Covers fully functional controller using shared informers, listers and workqueues. It shows how to generate all those objects. 
+Covers fully functional controller using shared informers, listers and workqueues. It shows how to generate all those objects.
 At this point one could able to relate why controllers are written in particular way.
 
 ***Note: This code is intended for educational purpose. While less focus is given on code quality aspect.***
 
 ### Credits
 - [https://github.com/kubernetes/sample-controller](https://github.com/kubernetes/sample-controller)
+- [programming kubernetes by Stefan Schimanski, Michael Hausenblas](https://learning.oreilly.com/library/view/programming-kubernetes/)
 
