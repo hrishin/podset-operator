@@ -9,7 +9,7 @@ So a developer could understand the beauty [KuberBuilder](https://github.com/kub
 #### PodSet resource
 
 Once user applies the `PodSet` (`kubectl apply -f podset.yaml`) resource, controller could spin up
-number of pods mentioned as `replicas` filed.
+number of pods mentioned as per `replicas` filed.
 
 e.g. User want to spin up 3 pod
 
@@ -22,118 +22,43 @@ spec:
   replicas: 3
 ```
 
+### Prerequisites
 
-### Step 2:
-* create `pods` namespace
-```
-$ kubectl create namespace pods
-```
+* Kubernetes cluster 1.9 + (minikube also works)
+* golang 1.11 +
+* set `GO111MODULE="on"` env if source code is in `$GOPATH`
 
-* Create CRD to define PodSet as custom resource
-```
-$ kubectl apply -f resources/crd.yaml -n pods 
-```
+###Tutorial
+Check out the code according to following instruction and check the README file to follow the further instructions.
 
-* In order create clientsets(API'S) for PodSet using go client, use [k8s.io/code-generator](https://github.com/kubernetes/code-generator)
+#### step 1
 ```
-$ go get k8s.io/code-generator
+git checkout step-1
+```
+covers basic code and scaffolding setup 
 
+#### step 2
+```
+git checkout step-2
+```
+Covers how to define CRD types, register CRD's and generate client API's using `go-client` and `generators`
+It covers simple program that issues `watch` request to `PodSet` resource and print's resource state changes on console.
 
-$ ~/go/src/k8s.io/code-generator/generate-groups.sh "deepcopy,client" \
-github.com/hrishin/podset-operator/pkg/client \
-github.com/hrishin/podset-operator/pkg/apis \
-demo:v1alpha1
+#### step 3
 ```
+git checkout step-3
+```
+Covers functional controller using basic generated code. It shows how to issue watch requests and bring `PodSet` resource to desired state (reconciliation).
 
+#### step 4
+```
+git checkout step-4
+```
+Covers fully functional controller using shared informers, listers and workqueues. It shows how to generate all those objects. 
+At this point one could able to relate why controllers are written in particular way.
 
-* Build an application
-```
- $ go build -o podset .
-```
+***Note: This code is intended for educational purpose. While less focus is given on code quality aspect.***
 
-* Run the application
-```
-$ ./podset kubeconfig=~/.kube/config
-```
-
-* Create PodSet resource
-```
-$ kubectl apply -f resources/cr.yaml -n pods 
-```
-
-### Step 3:
-Assume you have executed the step 2
-
-* In order create clientsets(API'S) for PodSet using go client, use [k8s.io/code-generator](https://github.com/kubernetes/code-generator)
-```
-$ go get k8s.io/code-generator
-
-
-$ ~/go/src/k8s.io/code-generator/generate-groups.sh "deepcopy,client" \
-github.com/hrishin/podset-operator/pkg/client \
-github.com/hrishin/podset-operator/pkg/apis \
-demo:v1alpha1
-```
-
-
-* Build an application
-```
- $ go build -o podset .
-```
-
-* Run the application
-```
-$ ./podset kubeconfig=~/.kube/config
-```
-
-* Create PodSet resource
-```
-$ kubectl apply -f resources/cr.yaml -n pods 
-```
-
-* Watch the pods status
-```
-$ k get pods -n pods -w
-```
-
-you would see the pods are coming up one by one
-
-### Step 4:
-Assume you have executed the step 3.
-Step 4 leverages on few more generators like informers and listers
-
-* In order to generate clientsets(API'S), deep copy, informers, listers for PodSet using go client, use [k8s.io/code-generator](https://github.com/kubernetes/code-generator)
-```
-$ go get k8s.io/code-generator
-
-
-$ ~/go/src/k8s.io/code-generator/generate-groups.sh \
-"deepcopy,client,informer,lister" \
-github.com/hrishin/podset-operator/pkg/client \
-github.com/hrishin/podset-operator/pkg/apis \
-demo:v1alpha1
-```
-
-
-* Build an application
-```
- $ go build -o podset .
-```
-
-* Run the application
-```
-$ ./podset kubeconfig=~/.kube/config
-```
-
-* Create PodSet resource
-```
-$ kubectl apply -f resources/cr.yaml -n pods 
-```
-
-* Watch the pods status
-```
-$ k get pods -n pods -w
-```
-
-you would see the pods are coming up one by one
+### Credits
+- [https://github.com/kubernetes/sample-controller](https://github.com/kubernetes/sample-controller)
 
