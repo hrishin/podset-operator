@@ -24,4 +24,10 @@ spec:
 
 ###Step-1:
 
+setup 
+
+```
+git clone git@github.com:hrishin/podset-operator.git hrishin/podset-operator
+```
+
 Need an API to interact with `PodSet` resource in order to create, update, delete and **watch** the resource state
