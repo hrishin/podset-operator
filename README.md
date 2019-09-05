@@ -2,12 +2,11 @@
 
 Objective of this Operator/Controller is demonstrate `ReplicaSet` kind of resource
 implementation using Kubernetes controller pattern.
-Another objective of this repo. is to show how to build the controller from scratch and what challenges/gotchas developer could face.
-So a developer could understand the beauty [KuberBuilder](https://github.com/kubernetes-sigs/kubebuilder) or [Operator SDK](https://github.com/operator-framework/operator-sdk) frameworks
+Another objective of this repo. is to show how to build the controller from scratch and what challenges a developer could face.
+So that a developer could understand the beauty [KuberBuilder](https://github.com/kubernetes-sigs/kubebuilder) or [Operator SDK](https://github.com/operator-framework/operator-sdk) frameworks
 
 
 #### PodSet resource
-
 Once user applies the `PodSet` (`kubectl apply -f podset.yaml`) resource, controller could spin up
 number of pods mentioned as per `replicas` filed.
 
@@ -27,6 +26,10 @@ spec:
 * Kubernetes cluster 1.9 + (minikube also works)
 * golang 1.11 +
 * set `GO111MODULE="on"` env if source code is in `$GOPATH`
+
+### Presentation
+
+[Presentation deck](/presentation.pdf)
 
 ### Tutorial
 Check out the code according to following instruction and check the README file to follow the further instructions.
