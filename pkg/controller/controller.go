@@ -263,9 +263,9 @@ func (c *podSetController) reconcile(ps *v1alpha1.PodSet) error {
 
 	// update the status (status.availablereplicas)
 	psCopy := ps.DeepCopy()
-	ps.Status.AvailableReplicas = existingPods
+	psCopy.Status.AvailableReplicas = existingPods
 	_, err = c.psc.DemoV1alpha1().
-		PodSets(ps.Namespace).
+		PodSets(psCopy.Namespace).
 		Update(psCopy)
 	if err != nil {
 		return err
