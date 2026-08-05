@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"reflect"
@@ -41,7 +42,7 @@ func (c *podSetController) Run() error {
 		defer wg.Done()
 		psWatcher, err := c.psc.DemoV1alpha1().
 			PodSets(c.ns).
-			Watch(metav1.ListOptions{})
+			Watch(context.TODO(), metav1.ListOptions{})
 
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error in watching podsets: %v", err)
@@ -52,7 +53,7 @@ func (c *podSetController) Run() error {
 		for event := range psCh {
 			ps, ok := event.Object.(*v1alpha1.PodSet)
 			if !ok {
-				fmt.Errorf("Podset event error : %s, \n", err)
+				fmt.Printf("Podset event error : %v, \n", err)
 			}
 			fmt.Printf("PodSet event type: %s,  name:%v \n", event.Type, ps.Name)
 
@@ -66,7 +67,7 @@ func (c *podSetController) Run() error {
 		defer wg.Done()
 		podWatcher, err := c.kc.CoreV1().
 			Pods(c.ns).
-			Watch(metav1.ListOptions{})
+			Watch(context.TODO(), metav1.ListOptions{})
 
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error in watching pods: %v", err)
@@ -77,7 +78,7 @@ func (c *podSetController) Run() error {
 		for event := range podCh {
 			pod, ok := event.Object.(*corev1.Pod)
 			if !ok {
-				fmt.Errorf("Pod event error : %s, \n", err)
+				fmt.Printf("Pod event error : %v, \n", err)
 			}
 			fmt.Printf("Pod event type: %s,  name:%v \n", event.Type, pod.Name)
 			ps := c.podSetOwnerFor(pod)
@@ -105,7 +106,7 @@ func (c *podSetController) reconcile(ps *v1alpha1.PodSet) {
 	if int32(len(pods)) < ps.Spec.Replicas {
 		pod := newPodForCR(ps)
 		//TODO: add owner reference
-		_, err := c.kc.CoreV1().Pods(c.ns).Create(pod)
+		_, err := c.kc.CoreV1().Pods(c.ns).Create(context.TODO(), pod, metav1.CreateOptions{})
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -113,7 +114,7 @@ func (c *podSetController) reconcile(ps *v1alpha1.PodSet) {
 	// if more then delete the pods
 	if diff := int32(len(pods)) - ps.Spec.Replicas; diff > 0 {
 		pod := pods[0]
-		err := c.kc.CoreV1().Pods(c.ns).Delete(pod, &metav1.DeleteOptions{})
+		err := c.kc.CoreV1().Pods(c.ns).Delete(context.TODO(), pod, metav1.DeleteOptions{})
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -125,7 +126,7 @@ func (c *podSetController) reconcile(ps *v1alpha1.PodSet) {
 	}
 	if !reflect.DeepEqual(status, ps.Status) {
 		ps.Status = status
-		_, err := c.psc.DemoV1alpha1().PodSets(c.ns).Update(ps)
+		_, err := c.psc.DemoV1alpha1().PodSets(c.ns).UpdateStatus(context.TODO(), ps, metav1.UpdateOptions{})
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -135,7 +136,7 @@ func (c *podSetController) reconcile(ps *v1alpha1.PodSet) {
 func (c *podSetController) podCountByLabel(key, value string) ([]string, error) {
 	pNames := []string{}
 
-	pods, err := c.kc.CoreV1().Pods(c.ns).List(metav1.ListOptions{
+	pods, err := c.kc.CoreV1().Pods(c.ns).List(context.TODO(), metav1.ListOptions{
 		LabelSelector: fmt.Sprintf("%s=%s", key, value),
 	})
 
@@ -161,7 +162,7 @@ func (c *podSetController) podSetOwnerFor(pod *corev1.Pod) *v1alpha1.PodSet {
 		return nil
 	}
 
-	ps, err := c.psc.DemoV1alpha1().PodSets(c.ns).Get(podSet, metav1.GetOptions{})
+	ps, err := c.psc.DemoV1alpha1().PodSets(c.ns).Get(context.TODO(), podSet, metav1.GetOptions{})
 	if err != nil {
 		return nil
 	}
