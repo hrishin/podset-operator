@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -32,7 +33,7 @@ type podSetController struct {
 	podHasSynced cache.InformerSynced
 	psLister     pslister.PodSetLister
 	psHasSynced  cache.InformerSynced
-	workqueue    workqueue.RateLimitingInterface
+	workqueue    workqueue.TypedRateLimitingInterface[string]
 	ns           string
 }
 
@@ -48,7 +49,10 @@ func New(kc k8s.Interface,
 		podHasSynced: podInformer.Informer().HasSynced,
 		psLister:     psInformer.Lister(),
 		psHasSynced:  psInformer.Informer().HasSynced,
-		workqueue:    workqueue.NewNamedRateLimitingQueue(workqueue.DefaultControllerRateLimiter(), "PodSets"),
+		workqueue: workqueue.NewTypedRateLimitingQueueWithConfig(
+			workqueue.DefaultTypedControllerRateLimiter[string](),
+			workqueue.TypedRateLimitingQueueConfig[string]{Name: "PodSets"},
+		),
 	}
 
 	// watch the PodSet resources events
@@ -110,7 +114,7 @@ func (c *podSetController) handlePodObject(obj interface{}) {
 
 		ps, err := c.psLister.PodSets(object.GetNamespace()).Get(ownerRef.Name)
 		if err != nil {
-			fmt.Printf("ignoring orphaned object '%s' of podset '%s' \n", object.GetSelfLink(), ownerRef.Name)
+			fmt.Printf("ignoring orphaned object '%s/%s' of podset '%s' \n", object.GetNamespace(), object.GetName(), ownerRef.Name)
 			return
 		}
 
@@ -151,35 +155,21 @@ func (c *podSetController) runWorker() {
 // processNextWorkItem will read a single work item off the workqueue and
 // attempt to process it, by calling the eventHandler.
 func (c *podSetController) processNextWorkItem() bool {
-	obj, shutdown := c.workqueue.Get()
+	key, shutdown := c.workqueue.Get()
 	if shutdown {
 		return false
 	}
 
 	// Wrapped this block in a func so we can defer c.workqueue.Done.
-	err := func(obj interface{}) error {
+	err := func(key string) error {
 		// We call Done here so the workqueue knows we have finished
 		// processing this item. We also must remember to call Forget if we
 		// do not want this work item being re-queued. For example, we do
 		// not call Forget if a transient error occurs, instead the item is
 		// put back on the workqueue and attempted again after a back-off
 		// period.
-		defer c.workqueue.Done(obj)
-		var key string
-		var ok bool
-		// We expect strings to come off the workqueue. These are of the
-		// form namespace/name. We do this as the delayed nature of the
-		// workqueue means the items in the informer cache may actually be
-		// more up to date that when the item was initially put onto the
-		// workqueue.
-		if key, ok = obj.(string); !ok {
-			// As the item in the workqueue is actually invalid, we call
-			// Forget here else we'd go into a loop of attempting to
-			// process a work item that is invalid.
-			c.workqueue.Forget(obj)
-			utilruntime.HandleError(fmt.Errorf("Expected string in workqueue but got %#v", obj))
-			return nil
-		}
+		defer c.workqueue.Done(key)
+
 		// Run the syncHandler, passing it the namespace/name string of the
 		// PodSet resource to be synced.
 		if err := c.eventHandler(key); err != nil {
@@ -189,11 +179,11 @@ func (c *podSetController) processNextWorkItem() bool {
 		}
 		// Finally, if no error occurs we Forget this item so it does not
 		// get queued again until another change happens.
-		c.workqueue.Forget(obj)
+		c.workqueue.Forget(key)
 		fmt.Printf("Successfully synced '%s' \n", key)
 
 		return nil
-	}(obj)
+	}(key)
 
 	if err != nil {
 		utilruntime.HandleError(err)
@@ -245,7 +235,7 @@ func (c *podSetController) reconcile(ps *v1alpha1.PodSet) error {
 		pod := newPod(ps)
 		_, err := c.kc.CoreV1().
 			Pods(ps.Namespace).
-			Create(pod)
+			Create(context.TODO(), pod, metav1.CreateOptions{})
 		if err != nil {
 			return err
 		}
@@ -255,7 +245,7 @@ func (c *podSetController) reconcile(ps *v1alpha1.PodSet) error {
 		pod := pods[0]
 		err := c.kc.CoreV1().
 			Pods(ps.Namespace).
-			Delete(pod, &metav1.DeleteOptions{})
+			Delete(context.TODO(), pod, metav1.DeleteOptions{})
 		if err != nil {
 			return err
 		}
@@ -263,10 +253,10 @@ func (c *podSetController) reconcile(ps *v1alpha1.PodSet) error {
 
 	// update the status (status.availablereplicas)
 	psCopy := ps.DeepCopy()
-	ps.Status.AvailableReplicas = existingPods
+	psCopy.Status.AvailableReplicas = existingPods
 	_, err = c.psc.DemoV1alpha1().
-		PodSets(ps.Namespace).
-		Update(psCopy)
+		PodSets(psCopy.Namespace).
+		UpdateStatus(context.TODO(), psCopy, metav1.UpdateOptions{})
 	if err != nil {
 		return err
 	}
