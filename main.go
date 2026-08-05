@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"os"
@@ -43,7 +44,7 @@ func main() {
 	// To check if PodSet resource exist
 	utilruntime.Must(sampleScheme.AddToScheme(scheme.Scheme))
 
-	watcher, err := client.DemoV1alpha1().PodSets("pods").Watch(metav1.ListOptions{})
+	watcher, err := client.DemoV1alpha1().PodSets("pods").Watch(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error listing podsets: %v", err)
 		os.Exit(1)
