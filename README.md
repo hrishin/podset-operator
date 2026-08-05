@@ -1,16 +1,19 @@
 ## PodSet Operator
 
-Objective of this Operator/Controller is demonstrate `ReplicaSet` kind of resource
-implementation using Kubernetes controller pattern.
-Another objective of this repo. is to show how to build the controller from scratch and what challenges a developer could face.
-So that a developer could understand the beauty [KuberBuilder](https://github.com/kubernetes-sigs/kubebuilder) or [Operator SDK](https://github.com/operator-framework/operator-sdk) frameworks
+The objective of this Operator/Controller is to demonstrate a `ReplicaSet`-like resource
+implementation using the Kubernetes controller pattern.
 
+Another objective of this repo is to show how to build a controller from scratch, and what
+challenges a developer could face along the way, so that a developer can appreciate the value
+that frameworks like [KubeBuilder](https://github.com/kubernetes-sigs/kubebuilder) or the
+[Operator SDK](https://github.com/operator-framework/operator-sdk) provide.
 
 #### PodSet resource
-Once user applies the `PodSet` (`kubectl apply -f podset.yaml`) resource, controller could spin up
-number of pods mentioned as per `replicas` filed.
 
-e.g. User want to spin up 3 pod
+Once a user applies a `PodSet` resource (`kubectl apply -f podset.yaml`), the controller spins up
+the number of pods specified in the `replicas` field.
+
+e.g. to spin up 3 pods:
 
 ```yaml
 apiVersion: demo.k8s.io/v1alpha1
@@ -23,46 +26,50 @@ spec:
 
 ### Prerequisites
 
-* Kubernetes cluster 1.9 + (minikube also works)
-* golang 1.11 +
-* set `GO111MODULE="on"` env if source code is in `$GOPATH`
+* A Kubernetes cluster 1.35+ (e.g. [kind](https://kind.sigs.k8s.io/) works well for local testing)
+* Go 1.25+
 
 ### Presentation
 
-[Presentation deck](/presentation.pdf)
+- [Slides (PDF)](/presentation.pdf)
+- [Slides transcript (Markdown)](/docs/presentation.md)
 
 ### Tutorial
-Check out the code according to following instruction and check the README file to follow the further instructions.
+
+Check out the code according to the following instructions, and check the README on each branch
+to follow the further instructions.
 
 #### step 1
 ```
 git checkout step-1
 ```
-covers basic code and scaffolding setup
+Covers basic code and scaffolding setup.
 
 #### step 2
 ```
 git checkout step-2
 ```
-Covers how to define CRD types, register CRD's and generate client API's using `go-client` and `generators`
-It covers simple program that issues `watch` request to `PodSet` resource and print's resource state changes on console.
+Covers how to define CRD types, register CRDs, and generate client APIs using `client-gen` and
+friends. Includes a simple program that issues a `watch` request for the `PodSet` resource and
+prints resource state changes to the console.
 
 #### step 3
 ```
 git checkout step-3
 ```
-Covers functional controller using basic generated code. It shows how to issue watch requests and bring `PodSet` resource to desired state (reconciliation).
+Covers a functional controller using the basic generated code. Shows how to issue watch requests
+and bring a `PodSet` resource to its desired state (reconciliation).
 
 #### step 4
 ```
 git checkout step-4
 ```
-Covers fully functional controller using shared informers, listers and workqueues. It shows how to generate all those objects.
-At this point one could able to relate why controllers are written in particular way.
+Covers a fully functional controller using shared informers, listers, and workqueues, and how to
+generate all of those objects. At this point one should be able to relate to why controllers are
+written the way they are.
 
-***Note: This code is intended for educational purpose. While less focus is given on code quality aspect.***
+***Note: This code is intended for educational purposes. Less focus is given to code quality.***
 
 ### Credits
 - [https://github.com/kubernetes/sample-controller](https://github.com/kubernetes/sample-controller)
-- [programming kubernetes by Stefan Schimanski, Michael Hausenblas](https://learning.oreilly.com/library/view/programming-kubernetes/)
-
+- [Programming Kubernetes by Stefan Schimanski, Michael Hausenblas](https://learning.oreilly.com/library/view/programming-kubernetes/)
