@@ -68,6 +68,17 @@ Covers a fully functional controller using shared informers, listers, and workqu
 generate all of those objects. At this point one should be able to relate to why controllers are
 written the way they are.
 
+#### step 5
+```
+git checkout step-5
+```
+Completes the same functional operator, this time rewritten using
+[KubeBuilder](https://github.com/kubernetes-sigs/kubebuilder). All of the boilerplate built by
+hand in steps 2-4 (deepcopy/clientset/informer/lister generation, manual watch registration, the
+workqueue, owner-reference bookkeeping) is now handled by
+[controller-runtime](https://github.com/kubernetes-sigs/controller-runtime) and the `kubebuilder`
+scaffolding, while the reconcile logic stays functionally identical.
+
 ***Note: This code is intended for educational purposes. Less focus is given to code quality.***
 
 ### Credits
