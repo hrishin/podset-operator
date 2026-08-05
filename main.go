@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"os"
@@ -46,7 +47,7 @@ func main() {
 
 	watcher, err := client.DemoV1alpha1().
 		PodSets("pods").
-		Watch(metav1.ListOptions{})
+		Watch(context.TODO(), metav1.ListOptions{})
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error listing podsets: %v", err)
