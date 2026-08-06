@@ -31,7 +31,7 @@ spec:
 
 ### Presentation
 
-- [Slides (PDF)](https://raw.githubusercontent.com/hrishin/podset-operator/master/presentation.pdf)
+- [Slides (PDF)](https://raw.githubusercontent.com/hrishin/podset-operator/master/deck.pdf)
 - [Slides transcript (Markdown)](/docs/presentation.md)
 
 ### Tutorial
