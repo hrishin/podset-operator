@@ -5,7 +5,7 @@ implementation using the Kubernetes controller pattern.
 
 Another objective of this repo is to show how to build a controller from scratch, and what
 challenges a developer could face along the way, so that a developer can appreciate the value
-that frameworks like [KubeBuilder](https://github.com/kubernetes-sigs/kubebuilder) or the
+that frameworks like [controller-runtime](https://github.com/kubernetes-sigs/controller-runtime), [KubeBuilder](https://github.com/kubernetes-sigs/kubebuilder) or the
 [Operator SDK](https://github.com/operator-framework/operator-sdk) provide.
 
 #### PodSet resource
